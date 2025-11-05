@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { supabase } from '../config/supabase';
+import QuestionnaireModal from './QuestionnaireModal';
 import './Chat.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -12,6 +13,9 @@ function Chat({ user, onLogout }) {
   const [sessionId, setSessionId] = useState(null);
   const [profile, setProfile] = useState(null);
   const [messageLimit, setMessageLimit] = useState(null);
+  const [translatedMessages, setTranslatedMessages] = useState({});
+  const [translatingIndex, setTranslatingIndex] = useState(null);
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -42,7 +46,7 @@ function Chat({ user, onLogout }) {
 
       // Check if user needs questionnaire
       if (!response.data.profile.communication_type) {
-        startQuestionnaire();
+        setShowQuestionnaire(true);
       } else {
         startPracticeSession();
       }
@@ -63,22 +67,24 @@ function Chat({ user, onLogout }) {
     }
   };
 
-  const startQuestionnaire = async () => {
+  const handleQuestionnaireComplete = async (answers) => {
     try {
       const token = await getAuthToken();
-      const response = await axios.post(
-        `${API_URL}/chat/session/start`,
-        { sessionType: 'questionnaire' },
+
+      // Update profile with questionnaire answers
+      await axios.put(
+        `${API_URL}/user/profile`,
+        answers,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSessionId(response.data.session.id);
-      setMessages([{
-        role: 'assistant',
-        content: response.data.initialMessage,
-        timestamp: new Date()
-      }]);
+
+      setShowQuestionnaire(false);
+
+      // Reload profile and start practice
+      await loadProfile();
     } catch (error) {
-      console.error('Error starting questionnaire:', error);
+      console.error('Error saving questionnaire:', error);
+      alert('Failed to save preferences. Please try again.');
     }
   };
 
@@ -152,6 +158,36 @@ function Chat({ user, onLogout }) {
     }
   };
 
+  const translateMessage = async (index, text) => {
+    if (translatedMessages[index]) {
+      // Toggle off if already translated
+      const newTranslated = { ...translatedMessages };
+      delete newTranslated[index];
+      setTranslatedMessages(newTranslated);
+      return;
+    }
+
+    setTranslatingIndex(index);
+    try {
+      const token = await getAuthToken();
+      const response = await axios.post(
+        `${API_URL}/chat/translate`,
+        { text },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setTranslatedMessages({
+        ...translatedMessages,
+        [index]: response.data
+      });
+    } catch (error) {
+      console.error('Error translating:', error);
+      alert('Translation failed. Please try again.');
+    } finally {
+      setTranslatingIndex(null);
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -161,6 +197,13 @@ function Chat({ user, onLogout }) {
 
   return (
     <div className="chat-container">
+      {showQuestionnaire && (
+        <QuestionnaireModal
+          onComplete={handleQuestionnaireComplete}
+          onClose={() => setShowQuestionnaire(false)}
+        />
+      )}
+
       <div className="chat-header">
         <div className="header-left">
           <h1>🎎 Chinese Ayi</h1>
@@ -182,26 +225,42 @@ function Chat({ user, onLogout }) {
 
       <div className="messages-container">
         {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.role}`}>
-            <div className="message-content">
-              {msg.content}
-            </div>
-            {msg.correction && (
-              <div className="correction">
-                <strong>【纠正】</strong>
-                <p>原句："{msg.correction.original}"</p>
-                <p>更地道："{msg.correction.corrected}"</p>
-                {msg.correction.explanation && (
-                  <p className="explanation">💡 {msg.correction.explanation}</p>
-                )}
+          <div key={index} className={`message-wrapper ${msg.role}`}>
+            <div className={`message ${msg.role}`}>
+              <div className="message-content">
+                {msg.content}
               </div>
-            )}
-            <div className="message-time">
-              {new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              {msg.correction && (
+                <div className="correction">
+                  <strong>【纠正】</strong>
+                  <p>原句："{msg.correction.original}"</p>
+                  <p>更地道："{msg.correction.corrected}"</p>
+                  {msg.correction.explanation && (
+                    <p className="explanation">💡 {msg.correction.explanation}</p>
+                  )}
+                </div>
+              )}
+              {translatedMessages[index] && (
+                <div className="translation-popup">
+                  <div className="pinyin">🔤 {translatedMessages[index].pinyin}</div>
+                  <div className="english">🇬🇧 {translatedMessages[index].english}</div>
+                </div>
+              )}
+              <div className="message-time">
+                {new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </div>
             </div>
+            <button
+              className="translate-button"
+              onClick={() => translateMessage(index, msg.content)}
+              disabled={translatingIndex === index}
+              title="Translate / Show Pinyin"
+            >
+              {translatingIndex === index ? '...' : translatedMessages[index] ? '✕' : '译'}
+            </button>
           </div>
         ))}
         {loading && (

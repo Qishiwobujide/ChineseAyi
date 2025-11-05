@@ -314,4 +314,54 @@ router.post('/session/:sessionId/end', authenticateUser, async (req, res) => {
     }
 });
 
+/**
+ * Translate Chinese text to pinyin and English
+ */
+router.post('/translate', authenticateUser, async (req, res) => {
+    try {
+        const { text } = req.body;
+
+        if (!text) {
+            return res.status(400).json({ error: 'Text is required' });
+        }
+
+        const { sendChatCompletion } = require('../config/openrouter');
+
+        const messages = [
+            {
+                role: 'system',
+                content: 'You are a Chinese language expert. When given Chinese text, provide the pinyin romanization and English translation. Format your response as JSON with keys "pinyin" and "english". Only respond with the JSON object, nothing else.'
+            },
+            {
+                role: 'user',
+                content: `Translate this Chinese text:\n${text}`
+            }
+        ];
+
+        const response = await sendChatCompletion(messages, {
+            temperature: 0.3,
+            max_tokens: 300
+        });
+
+        const content = response.choices[0].message.content;
+
+        // Try to parse JSON response
+        let translation;
+        try {
+            translation = JSON.parse(content);
+        } catch (e) {
+            // Fallback if response isn't valid JSON
+            translation = {
+                pinyin: 'Error parsing pinyin',
+                english: content
+            };
+        }
+
+        res.json(translation);
+    } catch (error) {
+        console.error('Error translating:', error);
+        res.status(500).json({ error: 'Failed to translate text' });
+    }
+});
+
 module.exports = router;
