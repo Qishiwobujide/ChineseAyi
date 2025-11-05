@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { supabase } from '../config/supabase';
 import QuestionnaireModal from './QuestionnaireModal';
+import CreditsModal from './CreditsModal';
 import './Chat.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -16,6 +17,7 @@ function Chat({ user, onLogout }) {
   const [translatedMessages, setTranslatedMessages] = useState({});
   const [translatingIndex, setTranslatingIndex] = useState(null);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -195,12 +197,27 @@ function Chat({ user, onLogout }) {
     }
   };
 
+  const handleCreditsUpdate = (newCredits) => {
+    setMessageLimit({
+      ...messageLimit,
+      credits: newCredits
+    });
+  };
+
   return (
     <div className="chat-container">
       {showQuestionnaire && (
         <QuestionnaireModal
           onComplete={handleQuestionnaireComplete}
           onClose={() => setShowQuestionnaire(false)}
+        />
+      )}
+
+      {showCreditsModal && (
+        <CreditsModal
+          onClose={() => setShowCreditsModal(false)}
+          initialCredits={messageLimit?.credits || 0}
+          onCreditsUpdate={handleCreditsUpdate}
         />
       )}
 
@@ -211,13 +228,19 @@ function Chat({ user, onLogout }) {
         </div>
         <div className="header-right">
           {messageLimit && (
-            <div className="message-counter">
-              <span className="counter-label">今日剩余:</span>
-              <span className="counter-value">{messageLimit.remainingFree}/{messageLimit.dailyLimit}</span>
-              {messageLimit.credits > 0 && (
-                <span className="credits">💎 {messageLimit.credits}</span>
-              )}
-            </div>
+            <>
+              <div className="message-counter">
+                <span className="counter-label">今日剩余:</span>
+                <span className="counter-value">{messageLimit.remainingFree}/{messageLimit.dailyLimit}</span>
+              </div>
+              <button
+                className="credits-button"
+                onClick={() => setShowCreditsModal(true)}
+                title="View Credits / 查看积分"
+              >
+                💎 {messageLimit.credits}
+              </button>
+            </>
           )}
           <button onClick={onLogout} className="logout-button">登出</button>
         </div>
