@@ -1,0 +1,13 @@
+{
+  "name": "chinese-ayi",
+  "version": "1.0.0",
+  "description": "Chinese Ayi - AI-powered Chinese language tutor",
+  "scripts": {
+    "auto-pull": "node auto-pull.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start"
+  },
+  "keywords": ["chinese", "language", "tutor", "ai"],
+  "author": "",
+  "license": "MIT"
+}
