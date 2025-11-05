@@ -5,15 +5,22 @@ require('dotenv').config();
 
 const userRoutes = require('./routes/user');
 const chatRoutes = require('./routes/chat');
+const webhookRoutes = require('./routes/webhook');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// CORS middleware
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true
 }));
+
+// Webhook route MUST come BEFORE bodyParser to receive raw body
+// Stripe needs raw body to verify webhook signature
+app.use('/api/webhook', webhookRoutes);
+
+// Body parser middleware for all other routes
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

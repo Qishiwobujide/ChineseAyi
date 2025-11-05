@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { supabaseAdmin } = require('../config/supabase');
 const { authenticateUser } = require('../middleware/auth');
+const stripe = require('../config/stripe');
 
 /**
  * Get user profile
@@ -132,57 +133,133 @@ router.get('/message-limit', authenticateUser, async (req, res) => {
 });
 
 /**
- * Purchase credits
+ * Create Stripe checkout session for purchasing credits
  */
-router.post('/credits/purchase', authenticateUser, async (req, res) => {
+router.post('/credits/create-checkout-session', authenticateUser, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { amount, paymentMethod, paymentReference } = req.body;
+        const { amount, price } = req.body;
 
-        if (!amount || amount <= 0) {
-            return res.status(400).json({ error: 'Invalid credit amount' });
+        if (!amount || amount <= 0 || !price || price <= 0) {
+            return res.status(400).json({ error: 'Invalid amount or price' });
         }
 
-        // TODO: Integrate with actual payment processor (Stripe, PayPal, etc.)
-        // For now, this is a placeholder
-
-        // Add credits to user
-        const { data: profile } = await supabaseAdmin
-            .from('user_profiles')
-            .select('credits')
-            .eq('id', userId)
-            .single();
-
-        const newCredits = (profile.credits || 0) + amount;
-
-        const { error: updateError } = await supabaseAdmin
-            .from('user_profiles')
-            .update({ credits: newCredits })
-            .eq('id', userId);
-
-        if (updateError) throw updateError;
-
-        // Record transaction
-        const { error: txError } = await supabaseAdmin
-            .from('credit_transactions')
-            .insert([{
-                user_id: userId,
-                amount: amount,
-                transaction_type: 'purchase',
-                payment_method: paymentMethod,
-                payment_reference: paymentReference
-            }]);
-
-        if (txError) throw txError;
+        // Create Stripe checkout session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `${amount} Credits - Chinese Ayi`,
+                            description: `Purchase ${amount} credits for Chinese Ayi tutor`,
+                            images: ['https://i.imgur.com/placeholder.png'], // Optional: Add your logo
+                        },
+                        unit_amount: Math.round(price * 100), // Convert to cents
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
+            client_reference_id: userId, // Store user ID to credit later
+            metadata: {
+                userId: userId,
+                creditsAmount: amount.toString(),
+            },
+        });
 
         res.json({
-            success: true,
-            credits: newCredits,
-            message: `Successfully purchased ${amount} credits`
+            sessionId: session.id,
+            url: session.url
         });
     } catch (error) {
-        console.error('Error purchasing credits:', error);
-        res.status(500).json({ error: 'Failed to purchase credits' });
+        console.error('Error creating checkout session:', error);
+        res.status(500).json({ error: 'Failed to create checkout session' });
+    }
+});
+
+/**
+ * Verify payment and get session details
+ */
+router.get('/credits/verify-payment/:sessionId', authenticateUser, async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const userId = req.user.id;
+
+        // Retrieve the session from Stripe
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        // Verify this session belongs to this user
+        if (session.client_reference_id !== userId) {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+
+        // Check if payment was successful
+        if (session.payment_status === 'paid') {
+            // Check if credits already added (to prevent double-crediting)
+            const { data: existingTx } = await supabaseAdmin
+                .from('credit_transactions')
+                .select('*')
+                .eq('payment_reference', sessionId)
+                .single();
+
+            if (!existingTx) {
+                // Add credits to user
+                const creditsToAdd = parseInt(session.metadata.creditsAmount);
+
+                const { data: profile } = await supabaseAdmin
+                    .from('user_profiles')
+                    .select('credits')
+                    .eq('id', userId)
+                    .single();
+
+                const newCredits = (profile.credits || 0) + creditsToAdd;
+
+                await supabaseAdmin
+                    .from('user_profiles')
+                    .update({ credits: newCredits })
+                    .eq('id', userId);
+
+                // Record transaction
+                await supabaseAdmin
+                    .from('credit_transactions')
+                    .insert([{
+                        user_id: userId,
+                        amount: creditsToAdd,
+                        transaction_type: 'purchase',
+                        payment_method: 'stripe',
+                        payment_reference: sessionId
+                    }]);
+
+                res.json({
+                    success: true,
+                    credits: newCredits,
+                    amount: creditsToAdd
+                });
+            } else {
+                // Credits already added
+                const { data: profile } = await supabaseAdmin
+                    .from('user_profiles')
+                    .select('credits')
+                    .eq('id', userId)
+                    .single();
+
+                res.json({
+                    success: true,
+                    credits: profile.credits,
+                    amount: parseInt(session.metadata.creditsAmount),
+                    alreadyCredited: true
+                });
+            }
+        } else {
+            res.status(400).json({ error: 'Payment not completed' });
+        }
+    } catch (error) {
+        console.error('Error verifying payment:', error);
+        res.status(500).json({ error: 'Failed to verify payment' });
     }
 });
 

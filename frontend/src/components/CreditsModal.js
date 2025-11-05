@@ -46,33 +46,27 @@ function CreditsModal({ onClose, initialCredits, onCreditsUpdate }) {
     try {
       const token = await getAuthToken();
 
-      // In a real app, you'd integrate with Stripe/PayPal here
-      // For now, we'll simulate a successful purchase
+      // Create Stripe checkout session
       const response = await axios.post(
-        `${API_URL}/user/credits/purchase`,
+        `${API_URL}/user/credits/create-checkout-session`,
         {
           amount: pkg.amount,
-          paymentMethod: 'demo',
-          paymentReference: `DEMO-${Date.now()}`
+          price: pkg.price
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
-        setCredits(response.data.credits);
-        onCreditsUpdate(response.data.credits);
-        await loadTransactionHistory();
-
-        // Show success message
-        alert(`✅ 购买成功！您已获得 ${pkg.amount} 积分\n\nPurchase successful! You received ${pkg.amount} credits.`);
+      // Redirect to Stripe Checkout
+      if (response.data.url) {
+        window.location.href = response.data.url;
       }
     } catch (error) {
-      console.error('Error purchasing credits:', error);
-      alert('购买失败，请重试。\n\nPurchase failed. Please try again.');
-    } finally {
+      console.error('Error creating checkout session:', error);
+      alert('购买失败，请重试。\n\nFailed to create payment session. Please try again.');
       setLoading(false);
       setSelectedPackage(null);
     }
+    // Don't reset loading state here - user is being redirected
   };
 
   const formatDate = (dateString) => {
@@ -141,7 +135,7 @@ function CreditsModal({ onClose, initialCredits, onCreditsUpdate }) {
             </div>
 
             <div className="payment-note">
-              <p>💡 Note: This is a demo. In production, integrate with Stripe or PayPal for real payments.</p>
+              <p>🔒 Secure payment powered by Stripe. Your payment information is encrypted and secure.</p>
             </div>
           </section>
 
