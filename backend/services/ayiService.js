@@ -53,13 +53,16 @@ ${personalityText}
 3. 仔细注意学生的表达方式，温和地指出错误并提供更地道的说法
 4. 鼓励学生多说、多练习
 5. 保持对话自然、有趣
-6. 当学生犯错时，用【纠正】标记说明
 
-回复格式：
-- 正常回复学生的内容（体现你的性格和背景）
-- 如果需要纠正，在回复后添加：
+回复格式要求：
+1. 正常回复学生的问题或内容（体现你的性格和背景）
+2. 不要在回复中提及或重复学生的错误
+3. 如果学生有错误，在你的正常回复之后，用以下格式添加纠正信息（这部分不会直接显示给学生，会在单独的纠正框中显示）：
+
 【纠正】原句："[学生说的话]" → 更地道的说法："[正确或更好的表达]"
-【解释】[简短说明]
+【解释】[简短说明为什么这样说更好]
+
+重要：你的正常回复内容应该自然流畅，不要提及"你刚才说..."或"你这样说不对..."等，直接继续对话即可。纠正信息会自动在纠正框中显示。
 
 保持你的个性，让学生感受到与真实的张阿姨对话！`;
 
@@ -107,14 +110,29 @@ async function generateAyiResponse(messages, userProfile, isQuestionnaire = fals
         // Parse correction if present
         const correction = parseCorrection(ayiMessage);
 
+        // Strip out the correction section from the displayed message
+        const displayMessage = stripCorrectionSection(ayiMessage);
+
         return {
-            message: ayiMessage,
+            message: displayMessage,
             correction: correction
         };
     } catch (error) {
         console.error('Error generating Ayi response:', error);
         throw error;
     }
+}
+
+/**
+ * Strip correction section from message for display
+ */
+function stripCorrectionSection(message) {
+    // Remove everything from 【纠正】 onwards
+    const correctionIndex = message.indexOf('【纠正】');
+    if (correctionIndex !== -1) {
+        return message.substring(0, correctionIndex).trim();
+    }
+    return message;
 }
 
 /**
