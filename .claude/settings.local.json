@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git pull:*)",
-      "Bash(node auto-pull.js:*)"
+      "Bash(node auto-pull.js:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
