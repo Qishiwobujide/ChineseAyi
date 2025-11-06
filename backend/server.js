@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Chinese Ayi API is running' });
+    res.json({ status: 'ok', message: 'Zhang Ayi API is running' });
 });
 
 // Routes
@@ -49,7 +49,7 @@ app.use((req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Chinese Ayi API server running on port ${PORT}`);
+    console.log(`🚀 Zhang Ayi API server running on port ${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
 });

@@ -177,6 +177,117 @@
   }
 }
 
+/* Wider modal for customization options */
+.questionnaire-wide {
+  max-width: 900px !important;
+}
+
+/* Highlight section for Zhang Ayi customization */
+.question-group.highlight {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e3f2fd 100%);
+  border-left: 4px solid #667eea;
+}
+
+/* Traits grid */
+.traits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.trait-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.trait-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.trait-card.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.trait-emoji {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.trait-label {
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.hint-text {
+  text-align: center;
+  color: #999;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+/* Background grid */
+.background-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.background-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.background-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.background-card.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.background-emoji {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+.background-title {
+  font-weight: 700;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.background-english {
+  font-size: 0.85em;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.background-desc {
+  font-size: 0.85em;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .modal-content {
     padding: 25px;
@@ -192,5 +303,13 @@
 
   .option-label {
     font-size: 1em;
+  }
+
+  .traits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .background-grid {
+    grid-template-columns: 1fr;
   }
 }

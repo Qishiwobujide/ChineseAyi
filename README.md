@@ -1,6 +1,6 @@
-# 🎎 Chinese Ayi - 中文阿姨
+# 🎎 Zhang Ayi - 张阿姨
 
-A personalized Chinese language tutor powered by AI. The Chinese Ayi (阿姨) helps students learn and practice Chinese through interactive conversations, providing real-time corrections and suggestions for more authentic expressions (更地道的说法).
+A personalized Chinese language tutor powered by AI. Zhang Ayi (张阿姨) helps students learn and practice Chinese through interactive conversations, providing real-time corrections and suggestions for more authentic expressions (更地道的说法).
 
 ## ✨ Features
 

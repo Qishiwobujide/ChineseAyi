@@ -1,7 +1,7 @@
 {
-  "name": "chinese-ayi-backend",
+  "name": "zhang-ayi-backend",
   "version": "1.0.0",
-  "description": "Backend for Chinese Ayi tutor agent",
+  "description": "Backend for Zhang Ayi tutor agent",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

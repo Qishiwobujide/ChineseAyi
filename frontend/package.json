@@ -1,7 +1,7 @@
 {
-  "name": "chinese-ayi-frontend",
+  "name": "zhang-ayi-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Chinese Ayi tutor",
+  "description": "Frontend for Zhang Ayi tutor",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",

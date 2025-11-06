@@ -223,8 +223,8 @@ function Chat({ user, onLogout }) {
 
       <div className="chat-header">
         <div className="header-left">
-          <h1>🎎 Chinese Ayi</h1>
-          <p>中文阿姨</p>
+          <h1>🎎 Zhang Ayi</h1>
+          <p>张阿姨</p>
         </div>
         <div className="header-right">
           {messageLimit && (

@@ -39,8 +39,8 @@ function Auth() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>🎎 Chinese Ayi</h1>
-        <h2>中文阿姨 - 您的中文导师</h2>
+        <h1>🎎 Zhang Ayi</h1>
+        <h2>张阿姨 - 您的中文导师</h2>
 
         <form onSubmit={handleAuth}>
           <input

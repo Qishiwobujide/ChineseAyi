@@ -25,7 +25,7 @@ async function sendChatCompletion(messages, options = {}) {
                 headers: {
                     'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                     'HTTP-Referer': 'http://localhost:3000', // Optional, for rankings
-                    'X-Title': 'Chinese Ayi Tutor', // Optional, shows in rankings
+                    'X-Title': 'Zhang Ayi Tutor', // Optional, shows in rankings
                     'Content-Type': 'application/json'
                 }
             }

@@ -1,7 +1,7 @@
 {
-  "name": "chinese-ayi",
+  "name": "zhang-ayi",
   "version": "1.0.0",
-  "description": "Chinese Ayi - AI-powered Chinese language tutor",
+  "description": "Zhang Ayi - AI-powered Chinese language tutor",
   "scripts": {
     "auto-pull": "node auto-pull.js",
     "dev:backend": "cd backend && npm run dev",
