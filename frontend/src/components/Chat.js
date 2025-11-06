@@ -17,6 +17,7 @@ function Chat({ user, onLogout }) {
   const [messageLimit, setMessageLimit] = useState(null);
   const [translatedMessages, setTranslatedMessages] = useState({});
   const [translatingIndex, setTranslatingIndex] = useState(null);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const [showSessionCustomization, setShowSessionCustomization] = useState(false);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
@@ -208,6 +209,47 @@ function Chat({ user, onLogout }) {
     }
   };
 
+  const speakMessage = (index, text) => {
+    // Check if browser supports speech synthesis
+    if (!('speechSynthesis' in window)) {
+      alert('您的浏览器不支持语音功能 / Your browser does not support text-to-speech');
+      return;
+    }
+
+    // If already speaking this message, stop it
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+
+    // Stop any ongoing speech
+    window.speechSynthesis.cancel();
+
+    // Create speech utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN'; // Chinese language
+    utterance.rate = 0.9; // Slightly slower for language learning
+    utterance.pitch = 1;
+
+    // Set speaking state
+    setSpeakingIndex(index);
+
+    // Handle speech end
+    utterance.onend = () => {
+      setSpeakingIndex(null);
+    };
+
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event);
+      setSpeakingIndex(null);
+      alert('语音播放失败 / Speech playback failed');
+    };
+
+    // Speak the text
+    window.speechSynthesis.speak(utterance);
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -314,14 +356,23 @@ function Chat({ user, onLogout }) {
                 })}
               </div>
             </div>
-            <button
-              className="translate-button"
-              onClick={() => translateMessage(index, msg.content)}
-              disabled={translatingIndex === index}
-              title="Translate / Show Pinyin"
-            >
-              {translatingIndex === index ? '...' : translatedMessages[index] ? '✕' : '译'}
-            </button>
+            <div className="message-actions">
+              <button
+                className="audio-button"
+                onClick={() => speakMessage(index, msg.content)}
+                title="Listen / 听发音"
+              >
+                {speakingIndex === index ? '⏸' : '🔊'}
+              </button>
+              <button
+                className="translate-button"
+                onClick={() => translateMessage(index, msg.content)}
+                disabled={translatingIndex === index}
+                title="Translate / Show Pinyin"
+              >
+                {translatingIndex === index ? '...' : translatedMessages[index] ? '✕' : '译'}
+              </button>
+            </div>
           </div>
         ))}
         {loading && (
