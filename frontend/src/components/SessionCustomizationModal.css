@@ -1,0 +1,212 @@
+.customization-modal {
+  max-width: 900px !important;
+}
+
+.customization-modal h2 {
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 5px;
+  font-size: 2.2em;
+}
+
+.customization-modal h3 {
+  text-align: center;
+  color: #764ba2;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.customization-modal .modal-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1em;
+  line-height: 1.6;
+}
+
+/* Highlight section for Zhang Ayi customization */
+.question-group.highlight {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e3f2fd 100%);
+  border-left: 4px solid #667eea;
+  margin-bottom: 25px;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.question-label {
+  display: block;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.question-number {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 32px;
+  margin-right: 12px;
+  font-size: 0.9em;
+}
+
+.question-english {
+  color: #888;
+  font-size: 0.85em;
+  font-weight: normal;
+}
+
+/* Traits grid */
+.traits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.trait-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.trait-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.trait-card.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.trait-emoji {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.trait-label {
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.hint-text {
+  text-align: center;
+  color: #999;
+  margin-top: 10px;
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+/* Background grid */
+.background-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.background-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.background-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.background-card.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.background-emoji {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+.background-title {
+  font-weight: 700;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.background-desc {
+  font-size: 0.85em;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.button-group {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.submit-button {
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.submit-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.submit-button:active {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .customization-modal {
+    padding: 25px;
+  }
+
+  .customization-modal h2 {
+    font-size: 1.6em;
+  }
+
+  .customization-modal h3 {
+    font-size: 1.1em;
+  }
+
+  .traits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .background-grid {
+    grid-template-columns: 1fr;
+  }
+}

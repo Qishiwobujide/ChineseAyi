@@ -10,14 +10,16 @@ const { generateAyiResponse, extractQuestionnaireData } = require('../services/a
 router.post('/session/start', authenticateUser, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { sessionType } = req.body; // 'questionnaire' or 'practice'
+        const { sessionType, ayi_personality_traits, ayi_background } = req.body;
 
-        // Create new session
+        // Create new session with personality and background customization
         const { data: session, error } = await supabaseAdmin
             .from('conversation_sessions')
             .insert([{
                 user_id: userId,
                 session_type: sessionType || 'practice',
+                ayi_personality_traits: ayi_personality_traits || [],
+                ayi_background: ayi_background || null,
                 is_active: true
             }])
             .select()
@@ -33,8 +35,15 @@ router.post('/session/start', authenticateUser, async (req, res) => {
                 .eq('id', userId)
                 .single();
 
-            // Generate initial greeting
-            const response = await generateAyiResponse([], profile, false);
+            // Combine user profile with session customization
+            const sessionProfile = {
+                ...profile,
+                ayi_personality_traits: session.ayi_personality_traits,
+                ayi_background: session.ayi_background
+            };
+
+            // Generate initial greeting with session customization
+            const response = await generateAyiResponse([], sessionProfile, false);
 
             // Save Ayi's greeting
             await supabaseAdmin
@@ -165,9 +174,16 @@ router.post('/message', authenticateUser, async (req, res) => {
             .eq('id', userId)
             .single();
 
-        // Generate Ayi's response
+        // Combine user profile with session customization
+        const sessionProfile = {
+            ...userProfile,
+            ayi_personality_traits: session.ayi_personality_traits,
+            ayi_background: session.ayi_background
+        };
+
+        // Generate Ayi's response with session customization
         const isQuestionnaire = session.session_type === 'questionnaire';
-        const ayiResponse = await generateAyiResponse(messages, userProfile, isQuestionnaire);
+        const ayiResponse = await generateAyiResponse(messages, sessionProfile, isQuestionnaire);
 
         // Save Ayi's response
         const { data: savedMessage } = await supabaseAdmin

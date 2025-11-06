@@ -68,16 +68,13 @@ router.get('/profile', authenticateUser, async (req, res) => {
 router.put('/profile', authenticateUser, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { communication_type, usage_context, background, proficiency_level,
-                ayi_personality_traits, ayi_background } = req.body;
+        const { communication_type, usage_context, background, proficiency_level } = req.body;
 
         const updates = {};
         if (communication_type) updates.communication_type = communication_type;
         if (usage_context) updates.usage_context = usage_context;
         if (background) updates.background = background;
         if (proficiency_level) updates.proficiency_level = proficiency_level;
-        if (ayi_personality_traits) updates.ayi_personality_traits = ayi_personality_traits;
-        if (ayi_background) updates.ayi_background = ayi_background;
         updates.updated_at = new Date().toISOString();
 
         const { data, error } = await supabaseAdmin

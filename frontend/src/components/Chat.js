@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { supabase } from '../config/supabase';
 import QuestionnaireModal from './QuestionnaireModal';
+import SessionCustomizationModal from './SessionCustomizationModal';
 import CreditsModal from './CreditsModal';
 import './Chat.css';
 
@@ -17,6 +18,7 @@ function Chat({ user, onLogout }) {
   const [translatedMessages, setTranslatedMessages] = useState({});
   const [translatingIndex, setTranslatingIndex] = useState(null);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [showSessionCustomization, setShowSessionCustomization] = useState(false);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -46,11 +48,12 @@ function Chat({ user, onLogout }) {
       });
       setProfile(response.data.profile);
 
-      // Check if user needs questionnaire
+      // Check if user needs to complete user preferences questionnaire
       if (!response.data.profile.communication_type) {
         setShowQuestionnaire(true);
       } else {
-        startPracticeSession();
+        // User preferences exist, show session customization
+        setShowSessionCustomization(true);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -73,7 +76,7 @@ function Chat({ user, onLogout }) {
     try {
       const token = await getAuthToken();
 
-      // Update profile with questionnaire answers
+      // Update profile with user preference answers
       await axios.put(
         `${API_URL}/user/profile`,
         answers,
@@ -82,20 +85,35 @@ function Chat({ user, onLogout }) {
 
       setShowQuestionnaire(false);
 
-      // Reload profile and start practice
-      await loadProfile();
+      // After user preferences, show session customization
+      setShowSessionCustomization(true);
     } catch (error) {
       console.error('Error saving questionnaire:', error);
       alert('Failed to save preferences. Please try again.');
     }
   };
 
-  const startPracticeSession = async () => {
+  const handleSessionCustomizationComplete = async (customization) => {
+    try {
+      setShowSessionCustomization(false);
+      // Start session with customization
+      await startPracticeSession(customization);
+    } catch (error) {
+      console.error('Error starting session:', error);
+      alert('Failed to start session. Please try again.');
+    }
+  };
+
+  const startPracticeSession = async (customization) => {
     try {
       const token = await getAuthToken();
       const response = await axios.post(
         `${API_URL}/chat/session/start`,
-        { sessionType: 'practice' },
+        {
+          sessionType: 'practice',
+          ayi_personality_traits: customization.ayi_personality_traits,
+          ayi_background: customization.ayi_background
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSessionId(response.data.session.id);
@@ -213,6 +231,13 @@ function Chat({ user, onLogout }) {
         />
       )}
 
+      {showSessionCustomization && (
+        <SessionCustomizationModal
+          onComplete={handleSessionCustomizationComplete}
+          onClose={() => setShowSessionCustomization(false)}
+        />
+      )}
+
       {showCreditsModal && (
         <CreditsModal
           onClose={() => setShowCreditsModal(false)}
@@ -227,6 +252,19 @@ function Chat({ user, onLogout }) {
           <p>张阿姨</p>
         </div>
         <div className="header-right">
+          {sessionId && (
+            <button
+              className="new-conversation-button"
+              onClick={() => {
+                setMessages([]);
+                setSessionId(null);
+                setShowSessionCustomization(true);
+              }}
+              title="Start New Conversation / 开始新对话"
+            >
+              ➕ 新对话
+            </button>
+          )}
           {messageLimit && (
             <>
               <div className="message-counter">

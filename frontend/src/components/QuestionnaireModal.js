@@ -6,74 +6,15 @@ function QuestionnaireModal({ onComplete, onClose }) {
     communication_type: '',
     usage_context: '',
     background: '',
-    proficiency_level: '',
-    ayi_personality_traits: [],
-    ayi_background: ''
+    proficiency_level: ''
   });
-
-  const personalityTraits = [
-    { id: 'polite', label: '礼貌 Polite', emoji: '😊' },
-    { id: 'straightforward', label: '直率 Straightforward', emoji: '💬' },
-    { id: 'nice', label: '和善 Nice', emoji: '🥰' },
-    { id: 'sassy', label: '俏皮 Sassy', emoji: '😏' },
-    { id: 'encouraging', label: '鼓励 Encouraging', emoji: '💪' },
-    { id: 'strict', label: '严格 Strict', emoji: '📏' },
-    { id: 'humorous', label: '幽默 Humorous', emoji: '😄' },
-    { id: 'patient', label: '耐心 Patient', emoji: '🧘' }
-  ];
-
-  const backgroundOptions = [
-    {
-      id: 'retired_teacher',
-      label: '退休教师',
-      english: 'Retired Teacher',
-      emoji: '👩‍🏫',
-      description: '30年教学经验，温柔耐心'
-    },
-    {
-      id: 'beijing_native',
-      label: '北京本地人',
-      english: 'Beijing Native',
-      emoji: '🏛️',
-      description: '地道北京话，熟悉北方文化'
-    },
-    {
-      id: 'shanghai_businesswoman',
-      label: '上海女企业家',
-      english: 'Shanghai Businesswoman',
-      emoji: '💼',
-      description: '商务经验丰富，精明能干'
-    },
-    {
-      id: 'taiwanese_aunt',
-      label: '台湾阿姨',
-      english: 'Taiwanese Aunt',
-      emoji: '🌸',
-      description: '温婉亲切，台湾腔调'
-    },
-    {
-      id: 'hongkong_ayi',
-      label: '香港阿姨',
-      english: 'Hong Kong Ayi',
-      emoji: '🏙️',
-      description: '活力四射，中英混合'
-    },
-    {
-      id: 'village_elder',
-      label: '乡村长辈',
-      english: 'Village Elder',
-      emoji: '🌾',
-      description: '淳朴智慧，说话直接'
-    }
-  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Validate all required fields
     if (!formData.communication_type || !formData.usage_context ||
-        !formData.background || !formData.proficiency_level ||
-        formData.ayi_personality_traits.length === 0 || !formData.ayi_background) {
+        !formData.background || !formData.proficiency_level) {
       alert('Please answer all questions / 请回答所有问题');
       return;
     }
@@ -88,34 +29,13 @@ function QuestionnaireModal({ onComplete, onClose }) {
     });
   };
 
-  const toggleTrait = (traitId) => {
-    const currentTraits = formData.ayi_personality_traits;
-    if (currentTraits.includes(traitId)) {
-      // Remove trait
-      setFormData({
-        ...formData,
-        ayi_personality_traits: currentTraits.filter(t => t !== traitId)
-      });
-    } else {
-      // Add trait (limit to 3 traits)
-      if (currentTraits.length < 3) {
-        setFormData({
-          ...formData,
-          ayi_personality_traits: [...currentTraits, traitId]
-        });
-      } else {
-        alert('最多选择3个性格特点 / Maximum 3 traits');
-      }
-    }
-  };
-
   return (
     <div className="modal-overlay">
-      <div className="modal-content questionnaire-wide">
-        <h2>🎎 认识张阿姨！ Meet Zhang Ayi!</h2>
+      <div className="modal-content">
+        <h2>🎎 欢迎！Welcome to Zhang Ayi!</h2>
         <p className="modal-subtitle">
-          让我们了解您的学习需求，并定制您专属的张阿姨！<br />
-          Let's understand your needs and customize your own Zhang Ayi!
+          让我们了解您的学习需求<br />
+          Let's understand your learning needs
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -238,68 +158,9 @@ function QuestionnaireModal({ onComplete, onClose }) {
             </div>
           </div>
 
-          {/* NEW Question 5: Zhang Ayi Personality */}
-          <div className="question-group highlight">
-            <label className="question-label">
-              <span className="question-number">5</span>
-              选择张阿姨的性格特点（最多3个）<br />
-              <span className="question-english">Choose Zhang Ayi's personality traits (up to 3)</span>
-            </label>
-            <div className="traits-grid">
-              {personalityTraits.map((trait) => (
-                <label
-                  key={trait.id}
-                  className={`trait-card ${formData.ayi_personality_traits.includes(trait.id) ? 'selected' : ''}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={formData.ayi_personality_traits.includes(trait.id)}
-                    onChange={() => toggleTrait(trait.id)}
-                    style={{ display: 'none' }}
-                  />
-                  <div className="trait-emoji">{trait.emoji}</div>
-                  <div className="trait-label">{trait.label}</div>
-                </label>
-              ))}
-            </div>
-            <p className="hint-text">
-              已选择 {formData.ayi_personality_traits.length}/3
-            </p>
-          </div>
-
-          {/* NEW Question 6: Zhang Ayi Background */}
-          <div className="question-group highlight">
-            <label className="question-label">
-              <span className="question-number">6</span>
-              选择张阿姨的背景<br />
-              <span className="question-english">Choose Zhang Ayi's background</span>
-            </label>
-            <div className="background-grid">
-              {backgroundOptions.map((bg) => (
-                <label
-                  key={bg.id}
-                  className={`background-card ${formData.ayi_background === bg.id ? 'selected' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="ayi_background"
-                    value={bg.id}
-                    checked={formData.ayi_background === bg.id}
-                    onChange={(e) => handleChange('ayi_background', e.target.value)}
-                    style={{ display: 'none' }}
-                  />
-                  <div className="background-emoji">{bg.emoji}</div>
-                  <div className="background-title">{bg.label}</div>
-                  <div className="background-english">{bg.english}</div>
-                  <div className="background-desc">{bg.description}</div>
-                </label>
-              ))}
-            </div>
-          </div>
-
           <div className="button-group">
             <button type="submit" className="submit-button">
-              开始与张阿姨对话 Start Chatting with Zhang Ayi 🚀
+              继续 Continue →
             </button>
           </div>
         </form>
